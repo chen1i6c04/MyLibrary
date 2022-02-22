@@ -1,17 +1,18 @@
 import os
 import shutil
+import subprocess
 from tempfile import TemporaryDirectory
-from application import MlstCommandline, PlasmidFinderCommandline, ResfinderCommandline, VirulencefinderCommandline,\
+from application import PlasmidFinderCommandline, ResfinderCommandline, VirulencefinderCommandline,\
     SerotypefinderCommandline, AmrfinderCommandline
 
 
-def run_mlst(infile, outdir, database, species):
-    os.makedirs(outdir, exist_ok=True)
-    with TemporaryDirectory(dir='/tmp/') as tmp:
-        cline = MlstCommandline(
-            infile=infile, outdir=outdir, database=database, species=species, tmp=tmp, extented_output=True
-        )
-        cline()
+def run_mlst(infile, output_json, output_fasta, scheme=None):
+    cmd = ['mlst', '--json', output_json, '--novel', output_fasta, '--nopath', infile]
+    if scheme:
+        cmd += ['--scheme', scheme]
+    p = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    if p.returncode != 0:
+        raise subprocess.CalledProcessError(p.returncode, cmd, output=p.stdout, stderr=p.stderr)
 
 
 def run_plasmidfinder(infile, outdir, database):

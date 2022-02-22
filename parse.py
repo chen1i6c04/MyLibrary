@@ -18,12 +18,10 @@ def parse_mlst_result(file):
     record = dict()
     with open(file) as f:
         data = json.load(f)
-    sequence_type = data['mlst']['results']['sequence_type']
-    sequence_type = sequence_type if sequence_type.isnumeric() else ''
+    sequence_type = data[0]['sequence_type']
     record['ST'] = sequence_type
-    allele_profile = data['mlst']['results']['allele_profile']
-    record.update({allele_name: (profile['allele'] if profile['allele'].isnumeric() else '')
-                   for allele_name, profile in allele_profile.items()})
+    allele_profile = data[0]['alleles']
+    record.update(allele_profile)
     return record
 
 
