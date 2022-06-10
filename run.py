@@ -6,8 +6,8 @@ from application import PlasmidFinderCommandline, ResfinderCommandline, Virulenc
     SerotypefinderCommandline, AmrfinderCommandline
 
 
-def run_mlst(infile, output_json, output_fasta, scheme=None):
-    cmd = ['mlst', '--json', output_json, '--novel', output_fasta, '--nopath', infile]
+def run_mlst(infile, output_json, output_fasta, scheme=None, threads=2):
+    cmd = ['mlst', '--json', output_json, '--novel', output_fasta, '--nopath', infile, '--threads', str(threads)]
     if scheme:
         cmd += ['--scheme', scheme]
     p = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -15,11 +15,11 @@ def run_mlst(infile, output_json, output_fasta, scheme=None):
         raise subprocess.CalledProcessError(p.returncode, cmd, output=p.stdout, stderr=p.stderr)
 
 
-def run_plasmidfinder(infile, outdir, database):
+def run_plasmidfinder(infile, outdir, database, identity=0.6, mincov=0.9):
     os.makedirs(outdir, exist_ok=True)
     with TemporaryDirectory(dir='/dev/shm/') as tmp:
         cline = PlasmidFinderCommandline(
-            infile=infile, outdir=outdir, database=database, tmp=tmp, extented_output=True
+            infile=infile, outdir=outdir, database=database, tmp=tmp, extented_output=True, mincov=mincov, threshold=identity
         )
         cline()
 

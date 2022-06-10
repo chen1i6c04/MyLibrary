@@ -1,6 +1,6 @@
-import json
 import base64
 import requests
+import subprocess
 from Bio.Application import AbstractCommandline, _Option, _Switch
 
 
@@ -55,16 +55,20 @@ class VirulencefinderCommandline(AbstractCommandline):
 class ResfinderCommandline(AbstractCommandline):
     def __init__(self, cmd='run_resfinder.py', **kwargs):
         self.parameters = [
-            _Option(['-ifa', 'infasta'], '', equate=False, is_required=True),
+            _Option(['-ifa', 'infasta'], '', equate=False, is_required=False),
+            _Option(['-ifq', 'infastq'], '', equate=False, is_required=False),
             _Option(['-o', 'outdir'], '', equate=False, is_required=True),
-            _Option(['-db_point', 'db_point'], '', equate=False, is_required=True),
-            _Option(['-db_res', 'db_res'], '', equate=False, is_required=True),
-            _Option(['-s', 'species'], '', equate=False, is_required=False),
+            _Option(['--db_path_point', 'db_point'], '', equate=False, is_required=True),
+            _Option(['--db_path_res', 'db_res'], '', equate=False, is_required=True),
+            _Option(['--species', 'species'], '', equate=False, is_required=False),
             _Option(['--min_cov', 'min_cov'], '', equate=False, is_required=False),
             _Option(['--threshold', 'threshold'], '', equate=False, is_required=False),
+            _Option(['--min_cov_point', 'min_cov_point'], '', equate=False, is_required=False),
+            _Option(['--threshold_point', 'threshold_point'], '', equate=False, is_required=False),
             _Switch(['-u', 'unknown'], ''),
             _Switch(['-c', 'point'], ''),
             _Switch(['-acq', 'acquired'], ''),
+            _Switch(['--nanopore', 'nanopore'], ''),
         ]
         AbstractCommandline.__init__(self, cmd, **kwargs)
 
@@ -167,3 +171,9 @@ class FastANICommandline(AbstractCommandline):
             _Option(['-t', 'threads'], '', equate=False)
         ]
         AbstractCommandline.__init__(self, cmd, **kwargs)
+        
+
+def assembly_stats(input_file):
+    output = subprocess.getoutput(f'assembly-stats -t {input_file}')
+    head, values = list(map(lambda x: x.split(), output.splitlines()))
+    return dict(zip(head, values))
