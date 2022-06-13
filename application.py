@@ -1,4 +1,5 @@
 import base64
+import json
 import requests
 import subprocess
 from Bio.Application import AbstractCommandline, _Option, _Switch
